@@ -1,0 +1,2 @@
+emacsclient -n ~/Dropbox/weekly.org
+sudo aptitude update && sudo aptitude upgrade
