@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Open file with emacsclient
+
+EDITOR="emacsclient -n -a nano"
+CACHE_FILE=$HOME/.cache/demacs/history
+
+test -d "$d" || mkdir -p `dirname $CACHE_FILE`
+
+if [ -f $HOME/.dmenurc ]; then
+  . $HOME/.dmenurc
+else
+  DMENU='dmenu -i'
+fi
+
+GS=`cat $CACHE_FILE | $DMENU $*`
+
+if grep -q "$GS" "$CACHE_FILE" ; then
+    echo "already exists in history"
+else
+    echo $GS >> $CACHE_FILE
+fi
+
+$EDITOR "$GS"

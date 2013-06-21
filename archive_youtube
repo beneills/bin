@@ -1,0 +1,3 @@
+#!/bin/sh
+
+youtube-dl --ignore-errors --continue --rate-limit 2.5m -o "$HOME/youtube/%(title)s-%(id)s.%(ext)s" $@

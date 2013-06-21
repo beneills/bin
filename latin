@@ -1,0 +1,5 @@
+#! /bin/bash
+
+WORDSPATH=~/nobackup/latin_words
+
+( cd $WORDSPATH ; ./words $* )

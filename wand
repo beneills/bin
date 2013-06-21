@@ -1,0 +1,60 @@
+#!/bin/bash
+
+#
+# Wand: A script that will guess a reasonable action on any file and perform it.
+#       Useful for quickly navigating filesystem directories and text files
+#
+# Uncopyright, Ben Eills, 2013
+#
+
+##
+## Parameters
+##
+
+XDG_OPEN_EXTENIONS="(.pdf)|(.mp3)|(.html)|(.ppt)|(.pptx)|(.doc)|(.docx)|(.flac)"
+
+##
+## Utility
+##
+
+# Apply arg to target file 
+function perform_and_exit() {
+    $1 "$target"
+    exit 0
+}
+
+# Determine our target
+if [ -z "$@" ]
+  then
+    target="."
+  else
+ target=$@
+fi
+
+##
+## Actions
+##
+
+# List directories
+if [ -d "$target" ]; then
+    perform_and_exit "ls --color=tty"
+fi
+
+# xdg-open certain files
+if echo $target | grep -E "($XDG_OPEN_EXTENIONS)$" - > /dev/null; then
+    perform_and_exit "xdg-open"
+fi
+
+# View text files, possibly with less
+if file $target | grep "text" > /dev/null; then
+    filesize=$(du -b "$target" | cut -f 1)
+    if [ $filesize -le 500 ]; then
+	perform_and_exit "cat"
+    else
+	perform_and_exit "less"
+    fi
+fi
+
+# Otherwise, just default to `file`
+perform_and_exit "file"
+

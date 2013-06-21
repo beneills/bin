@@ -1,0 +1,25 @@
+#!/bin/sh
+
+SEXP=$(zenity --entry --title "Emacs Insert" --text "Enter Emacs sexp:")
+
+
+if [ $? != 0 ]
+then
+    echo "Error getting input"
+    exit 1
+fi
+
+
+RESULT=$(emacsclient -e "$SEXP")
+
+if [ $? != 0 ]
+then
+    echo
+    echo "Error evaluating sexp!"
+    exit 1
+fi
+
+/usr/bin/xvkbd -xsendevent -text "$RESULT"
+
+exit 0
+

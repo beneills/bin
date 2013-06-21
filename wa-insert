@@ -1,0 +1,25 @@
+#!/bin/sh
+
+INPUT=$(zenity --entry --title "Wolfram|Alpha Insert" --text "Enter WA expression:")
+
+
+if [ $? != 0 ]
+then
+    echo "Error getting input"
+    exit 1
+fi
+
+
+RESULT=$(wa.sh $INPUT)
+
+if [ $? != 0 ]
+then
+    echo
+    echo "Error evaluating WA expression!"
+    exit 1
+fi
+
+/usr/bin/xvkbd -xsendevent -text "$RESULT"
+
+exit 0
+

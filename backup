@@ -1,0 +1,32 @@
+#!/bin/sh
+
+#
+# Perform backup to Tauro 1TB External drive.
+# Should be done weekly.
+#
+
+
+read -p "Shall we mount /media/backup [y]?" yn
+case $yn in
+    [NnQq]* ) exit;;
+    * ) mount /media/backup;;
+esac
+
+
+
+read -p "Shall we run rdiff-backup [y]?" yn
+case $yn in
+    [NnQq]* ) exit;;
+    * ) rdiff-backup --print-statistics --exclude /home/ziarkaen/nobackup /home/ziarkaen /media/backup/home;;
+esac
+
+
+
+read -p "Shall we unmount /media/backup [y]?" yn
+case $yn in
+    [NnQq]* ) exit;;
+    * ) umount /media/backup;;
+esac
+
+
+echo "Backup completed."

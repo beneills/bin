@@ -1,0 +1,5 @@
+#! /bin/bash
+
+WORDSPATH=~/bin/words
+
+( cd $WORDSPATH ; ./words $* )
