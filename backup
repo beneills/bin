@@ -6,10 +6,10 @@
 #
 
 
-read -p "Shall we mount /media/backup [y]?" yn
+read -p "Shall we mount /mnt/backup [y]?" yn
 case $yn in
     [NnQq]* ) exit;;
-    * ) mount /media/backup;;
+    * ) mount /mnt/backup;;
 esac
 
 
@@ -17,15 +17,15 @@ esac
 read -p "Shall we run rdiff-backup [y]?" yn
 case $yn in
     [NnQq]* ) exit;;
-    * ) rdiff-backup --print-statistics --exclude /home/ziarkaen/nobackup /home/ziarkaen /media/backup/home;;
+    * ) rdiff-backup --print-statistics --exclude /home/ziarkaen/nobackup /home/ziarkaen /mnt/backup/home;;
 esac
 
 
 
-read -p "Shall we unmount /media/backup [y]?" yn
+read -p "Shall we unmount /mnt/backup [y]?" yn
 case $yn in
     [NnQq]* ) exit;;
-    * ) umount /media/backup;;
+    * ) umount /mnt/backup;;
 esac
 
 
