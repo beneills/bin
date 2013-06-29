@@ -67,5 +67,15 @@ plan.filesub('weekly', weekly_filename) if Date.today.friday?
 # Otherwise, get rid of all other days
 plan.cleantags
 
-# And output to stdout
-puts plan
+
+# And output to file
+filename = File.join($plans_location, "#{today}.org")
+initial_filename = File.join($plans_location, ".#{today}.initial.org")
+
+if File.exists?(filename)
+  puts "Error: #{filename} already exists!"
+else
+  puts "Plan generated, saving to file: #{filename}."
+  IO.write(filename, plan)
+  IO.write(initial_filename, plan)
+end
