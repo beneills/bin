@@ -9,7 +9,8 @@ require 'date'
 
 $plans_location = File.expand_path("~/plans/")
 $config_location = File.expand_path("~/.plan/")
-
+$yesterday_exlude = ['teeth', 'stretch', 'supplements', 'anki reps']
+                     
 class String
   def filesub(var, filename)
     "Try to substitute {{var}} -> contents of file, checking for existence"
@@ -24,21 +25,31 @@ class String
                    }.join().chomp if File.exists?(filename)) or ""
     self.sub(var, replacement)
   end
+
   def sub(var, replacement)
     self.gsub!(/{{#{var}}}/, replacement)
   end
+
   def cleantags
     self.gsub!(/^{{.*?}}\n/, "")
     self.gsub!(/{{.*?}}/, "")
   end
+
   def promote
     "Promote unescaped headings"
     self.gsub(/^(\*+) ()/, "\\1* ")
   end
+
   def unescape
     "unescape asterisks"
     self.gsub(/\\\*/, "*")
   end
+end
+
+def usage
+  puts "Usage: #{$0} (-t | -h)"
+  puts "  --help, -h: show this usage"
+  puts "  --test, -t: output to stdout"
 end
 
 
@@ -56,7 +67,9 @@ plan.sub('date', today)
 yesterday_template = File.join(templates_location, "yesterday.org")
 yesterday_plan = File.join($plans_location, "#{yesterday}.org")
 yesterday_text = IO.read(yesterday_template).filesub('tasks', yesterday_plan) { |line|
-  line.include?(' TODO ')
+  line.include?(' TODO ') and $yesterday_exlude.none? { |s|
+    line.downcase.include?(s.downcase)
+  }
 }.promote.unescape
 plan.sub('yesterday', yesterday_text)
 
@@ -68,14 +81,24 @@ plan.filesub('weekly', weekly_filename) if Date.today.friday?
 plan.cleantags
 
 
-# And output to file
-filename = File.join($plans_location, "#{today}.org")
-initial_filename = File.join($plans_location, ".#{today}.initial.org")
+if ARGV.length == 0
+  filename = File.join($plans_location, "#{today}.org")
+  initial_filename = File.join($plans_location, ".#{today}.initial.org")
 
-if File.exists?(filename)
-  puts "Error: #{filename} already exists!"
+  if File.exists?(filename)
+    puts "Error: #{filename} already exists!"
+  else
+    puts "Plan generated, saving to file: #{filename}."
+    IO.write(filename, plan)
+    IO.write(initial_filename, plan)
+  end
+elsif ARGV.length == 1 and ['-t', '--test'].include?(ARGV.first)
+  print plan
+elsif ARGV.length == 1 and ['-h', '--help'].include?(ARGV.first)
+  usage
+  exit 0
 else
-  puts "Plan generated, saving to file: #{filename}."
-  IO.write(filename, plan)
-  IO.write(initial_filename, plan)
+  usage
+  exit 1
 end
+
