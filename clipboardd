@@ -1,0 +1,17 @@
+#!/bin/bash
+
+POLL_TIME=1
+
+STRING=first
+while :
+do
+    CUR=`xclip -selection c -o`
+    if [ "$CUR" != "$STRING" ]; then
+	STRING=$CUR
+	emacsclient -e "(kill-new \"$STRING\")" > /dev/null
+    fi
+    sleep $POLL_TIME
+done
+
+
+
