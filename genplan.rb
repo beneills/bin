@@ -77,6 +77,13 @@ plan.sub('yesterday', yesterday_text)
 weekly_filename = File.join(templates_location, "weekly.org")
 plan.filesub('weekly', weekly_filename) if Date.today.friday?
 
+# Add Google Calendar events
+events = [`google calendar today | tail -n+3`,
+          `google --cal="Fitness" calendar today | tail -n+3`,
+          `google --cal="Revision" calendar today | tail -n+3`].join
+plan.sub('events', events)
+
+
 # Otherwise, get rid of all other days
 plan.cleantags
 
