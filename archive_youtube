@@ -1,3 +1,9 @@
 #!/bin/sh
 
-youtube-dl --ignore-errors --continue --rate-limit 2.5m -o "$HOME/youtube/%(title)s-%(id)s.%(ext)s" $@
+FLAGS=" --ignore-errors --max-quality 22 --continue -o \"$HOME/youtube/%(title)s-%(id)s.%(ext)s\""
+
+if [ -z "$1" ]; then
+    youtube-dl $FLAGS -a-
+else
+    youtube-dl $FLAGS $@
+fi
