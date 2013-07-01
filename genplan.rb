@@ -69,7 +69,7 @@ yesterday_plan = File.join($plans_location, "#{yesterday}.org")
 yesterday_text = IO.read(yesterday_template).filesub('tasks', yesterday_plan) { |line|
   line.include?(' TODO ') and $yesterday_exlude.none? { |s|
     line.downcase.include?(s.downcase)
-  }
+  } and !line.strip[0] == '#'
 }.promote.unescape
 plan.sub('yesterday', yesterday_text)
 
