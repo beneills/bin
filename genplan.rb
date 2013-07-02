@@ -35,9 +35,9 @@ class String
     self.gsub!(/{{.*?}}/, "")
   end
 
-  def promote
-    "Promote unescaped headings"
-    self.gsub(/^(\*+) ()/, "\\1* ")
+  def promote_to(depth)
+    "e.g. '**** hello' -> '** hello' for depth=2"
+    self.gsub(/^(\*+) /, "** ")
   end
 
   def unescape
@@ -69,8 +69,8 @@ yesterday_plan = File.join($plans_location, "#{yesterday}.org")
 yesterday_text = IO.read(yesterday_template).filesub('tasks', yesterday_plan) { |line|
   line.include?(' TODO ') and $yesterday_exlude.none? { |s|
     line.downcase.include?(s.downcase)
-  } and !line.strip[0] == '#'
-}.promote.unescape
+  } and line.strip[0] != '#'
+}.promote_to(2).unescape
 plan.sub('yesterday', yesterday_text)
 
 # If Friday, add weekly
