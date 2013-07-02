@@ -12,8 +12,10 @@ $config_location = File.expand_path("~/.plan/")
 $yesterday_exlude = ['teeth', 'stretch', 'supplements', 'anki reps']
                      
 class String
-  def filesub(var, filename)
+  def filesub(var, filename=nil)
     "Try to substitute {{var}} -> contents of file, checking for existence"
+    templates_location = File.join($config_location, "templates")
+    filename = File.join(templates_location, "#{var}.org") if filename.nil?
     replacement = (File.open(filename) { |f|
                      f.select { |line|
                        if block_given?
@@ -57,8 +59,11 @@ templates_location = File.join($config_location, "templates")
 today = Date.today.strftime("%F")
 yesterday = (Date.today - 1).strftime("%F")
 
-# Start with daily template
-plan = IO.read(File.join(templates_location, "daily.org"))
+# Start with default template
+plan = IO.read(File.join(templates_location, "default.org"))
+
+# Add daily events
+plan.filesub('daily')
 
 # Date
 plan.sub('date', today)
@@ -74,8 +79,10 @@ yesterday_text = IO.read(yesterday_template).filesub('tasks', yesterday_plan) { 
 plan.sub('yesterday', yesterday_text)
 
 # If Friday, add weekly
-weekly_filename = File.join(templates_location, "weekly.org")
-plan.filesub('weekly', weekly_filename) if Date.today.friday?
+plan.filesub('weekly') if Date.today.friday?
+
+# If end of month, add monthly
+plan.filesub('monthly') if Date.today.cweek.modulo(4).zero? and Date.today.friday?
 
 # Add Google Calendar events
 events = [`google calendar today | tail -n+3`,
