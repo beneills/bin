@@ -4,7 +4,7 @@
 
 genplan.rb # prerequisite for emacs
 beemem.rb &
-beeplan.rb
+beeplan.rb &
 
 YESTERDAY_PLAN=~/plans/`date --date="yesterday" +%F`.org
 if grep --quiet --ignore-case "DONE morning teeth" $YESTERDAY_PLAN \
