@@ -5,7 +5,6 @@ require 'trollop'
 require 'yaml'
 
 # config
-actions = ['timer', 'total']
 $options = {:default_time => '30', :pause => '5'}
 
 class Stretch < String
@@ -20,6 +19,50 @@ class Stretch < String
   end
 end
 
+class Actions
+  def output(schedule)
+    schedule.each do |stretch|
+      time = pretty_time(stretch.time).ljust(6)
+      puts "[#{time}]\t#{stretch.name}"
+    end
+    total(schedule)
+  end
+  
+  
+  def timer(schedule)
+    (0...schedule.length).each do |i|
+      #  # deal with string shorthand by promoting to simple dict
+      stretch = schedule[i]
+      next_stretch = schedule[i+1]
+      
+      next_clause = i+1 < schedule.length ? " [next:#{next_stretch.name}]" : ""
+      
+      puts "#{stretch.name}#{next_clause}"
+      print " > "
+      countdown(stretch.time)
+      puts "fin."
+      system "mplayer -really-quiet #{$options[:sound_file]} &" if $options.has_key?(:sound_file)
+      sleep($options[:pause])
+    end
+  end
+  
+  def total(schedule)
+    total_time = pretty_time(schedule.map(&:time).inject(:+) + schedule.length * $options[:pause])
+    puts "Total: #{total_time}"
+  end
+end
+
+def invalid_action(schedule)
+  puts "Invalid action!"
+  exit(1)
+end
+
+def validate
+  parse_time($options[:default_time])
+  if $options.has_key?(:sound_file)
+    raise IOError if !File.exists?(File.expand_path($options[:sound_file]))
+  end
+end
 
 # Time string to seconds
 def parse_time(string)
@@ -51,40 +94,16 @@ def countdown(seconds, interval=5, deliminator=', ')
   end
 end
 
-def timer(schedule)
-  (0...schedule.length).each do |i|
-    #  # deal with string shorthand by promoting to simple dict
-    stretch = schedule[i]
-    next_stretch = schedule[i+1]
 
-    next_clause = i+1 < schedule.length ? " [next:#{next_stretch.name}]" : ""
 
-    puts "#{stretch.name}#{next_clause}"
-    print " > "
-    countdown(stretch.time)
-    puts "fin."
-    system "mplayer -really-quiet #{$options[:sound_file]} &" if $options.has_key?(:sound_file)
-    sleep($options[:pause])
-  end
-end
-
-def total(schedule)
-  puts pretty_time(schedule.map(&:time).inject(:+) + schedule.length * $options[:pause])
-end
-
-def validate
-  parse_time($options[:default_time])
-  if $options.has_key?(:sound_file)
-    raise IOError if !File.exists?(File.expand_path($options[:sound_file]))
-  end
-end
+actions = Actions.new
 
 opts = Trollop::options do
-  opt :file, "Specify stretches file location", :default => File.expand_path('~/.stretches.yaml')
+  opt :file, "Specify stretches file location", :default => File.expand_path('~/.stretches/stretches.yaml')
   opt :action, "What to do.", :default => 'timer'
 end
 Trollop::die :file, "must exist" unless File.exist?(opts[:file])
-Trollop::die :action, "must be one of: #{actions.join(', ')}" unless actions.include?(opts[:action])
+Trollop::die :action, "must be one of: #{Actions.methods.join(', ')}" unless Actions.method_defined?(opts[:action])
 
 
 y = YAML.load_file(opts[:file])
@@ -101,13 +120,9 @@ $options[:sound_file] = config['sound-file'] if config.has_key?('sound-file')
 validate
 
 
-case opts[:action]
-when 'timer'
-  timer(schedule)
-when 'total'
-  total(schedule)
-else
-  puts "Error!"
-  exit(1)
-end
+# do action
+action = opts[:action]
+Actions.method_defined?(action) ? actions.send(action, schedule) : invalid_action
+
+
 
