@@ -31,6 +31,9 @@ class Actions
   
   def timer(schedule)
     (0...schedule.length).each do |i|
+      # delay screensaver
+      system "xscreensaver-command -deactivate > /dev/null"
+
       #  # deal with string shorthand by promoting to simple dict
       stretch = schedule[i]
       next_stretch = schedule[i+1]
