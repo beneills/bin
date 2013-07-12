@@ -18,7 +18,7 @@ read -p "Shall we run rdiff-backup [y]?" yn
 case $yn in
     [NnQq]* ) exit;;
     * ) rdiff-backup --print-statistics \
-	--exclude-globing-file-list /home/ziarkaen/.backup.exclude \
+	--exclude-globbing-filelist /home/ziarkaen/.backup.exclude \
 	/home/ziarkaen /mnt/backup/home;;
 esac
 
