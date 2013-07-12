@@ -16,6 +16,7 @@ class String
     "Try to substitute {{var}} -> contents of file, checking for existence"
     templates_location = File.join($config_location, "templates")
     filename = File.join(templates_location, "#{var}.org") if filename.nil?
+    return unless File.exists? filename
     replacement = (File.open(filename) { |f|
                      f.select { |line|
                        if block_given?
@@ -71,12 +72,14 @@ plan.sub('date', today)
 # Add yesterday's unfinished tasks (promoting headings)
 yesterday_template = File.join(templates_location, "yesterday.org")
 yesterday_plan = File.join($plans_location, "#{yesterday}.org")
-yesterday_text = IO.read(yesterday_template).filesub('tasks', yesterday_plan) { |line|
-  line.include?(' TODO ') and $yesterday_exlude.none? { |s|
-    line.downcase.include?(s.downcase)
-  } and line.strip[0] != '#'
-}.promote_to(2).unescape
-plan.sub('yesterday', yesterday_text)
+if File.exists? yesterday_plan
+  yesterday_text = IO.read(yesterday_template).filesub('tasks', yesterday_plan) { |line|
+    line.include?(' TODO ') and $yesterday_exlude.none? { |s|
+      line.downcase.include?(s.downcase)
+    } and line.strip[0] != '#'
+  }.promote_to(2).unescape
+  plan.sub('yesterday', yesterday_text)
+end
 
 # If Friday, add weekly
 plan.filesub('weekly') if Date.today.friday?
@@ -96,6 +99,7 @@ plan.cleantags
 
 
 if ARGV.length == 0
+  link = File.join($plans_location, "today.org")
   filename = File.join($plans_location, "#{today}.org")
   initial_filename = File.join($plans_location, ".#{today}.initial.org")
 
@@ -105,6 +109,8 @@ if ARGV.length == 0
     puts "Plan generated, saving to file: #{filename}."
     IO.write(filename, plan)
     IO.write(initial_filename, plan)
+    File.delete(link)
+    File.symlink(filename, link)
   end
 elsif ARGV.length == 1 and ['-t', '--test'].include?(ARGV.first)
   print plan
