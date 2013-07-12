@@ -6,6 +6,7 @@ require 'yaml'
 
 # config
 $options = {:default_time => '30', :pause => '5'}
+$default_stretches_file = File.expand_path('~/.stretches/stretches.yaml')
 
 class Stretch < String
   def name
@@ -102,7 +103,7 @@ end
 actions = Actions.new
 
 opts = Trollop::options do
-  opt :file, "Specify stretches file location", :default => File.expand_path('~/.stretches/stretches.yaml')
+  opt :file, "Specify stretches file location", :default => $default_stretches_file
   opt :action, "What to do.", :default => 'timer'
 end
 Trollop::die :file, "must exist" unless File.exist?(opts[:file])
@@ -122,6 +123,10 @@ $options[:sound_file] = config['sound-file'] if config.has_key?('sound-file')
 # validate
 validate
 
+# Possibly update plan
+if config.fetch('update-plan', false)
+  system("sed --follow-symlinks -i -e \"s/TODO Stretch/DONE Stretch/\" ~/plans/today.org")
+end
 
 # do action
 action = opts[:action]
