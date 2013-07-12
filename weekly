@@ -1,6 +1,8 @@
 # chromium-browser T/week # TODO
 
-emacsclient -n ~/Dropbox/weekly.org
+echo "UPDATE"
 sudo aptitude update && sudo aptitude upgrade
+sudo gem update
 
-# gem update --all # TODO
+echo "BACKUP"
+backup
