@@ -1,6 +1,6 @@
 #!/bin/sh
 
-FLAGS=" --ignore-errors --max-quality 22 --continue -o \"$HOME/youtube/%(title)s-%(id)s.%(ext)s\""
+FLAGS="--ignore-errors --max-quality 22 --continue -o $HOME/youtube/%(title)s-%(id)s.%(ext)s"
 
 if [ -z "$1" ]; then
     youtube-dl $FLAGS -a-
